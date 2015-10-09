@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+
+    function Machine(power) {
+        this._power = power;
+        this._enabled = false;
+
+        var self = this;
+
+        this.enable = function() {
+            self._enabled = true;
+        };
+
+      /*  this.disable = function() {
+            self._enabled = false;
+        }; */
+    }
+
+    function Fridge (power){
+        Machine.apply(this,arguments);
+        var food = [];
+
+        var parentDisable = this.disable;
+        this.disable = function (){
+            parentDisable();
+            if (food.length >0 ){
+                throw new Error ('Есть еда')
+            }
+
+        };
+
+        this.addFood = function (){
+
+            if (!this._enabled){
+                throw new Error('Холодильник выключен');
+            }
+            if (arguments.length + food.length > power/100){
+                throw new Error ('Многовато');
+            }
+
+            for (var i = 0; i < arguments.length; i++){
+
+                food.push(arguments[i]);
+            }
+        };
+
+        this.getFood = function (){
+
+            return food.slice();
+        };
+
+        this.filterFood = function(func){
+            var foodReport = [];
+
+            for (var i=0; i<food.length; i++){
+
+                if (func(food[i])){
+                    foodReport.push(food[i]);
+                }
+            }
+
+            return foodReport;
+        }
+
+        this.removeFood = function (item){
+
+            for (var i = 0; i<food.length; i++){
+
+                if (food[i].title == item.title){
+
+                    food.splice(i,1);
+                }
+            }
+        }
+
+
+
+    }
+    var fridge = new Fridge(500);
+    fridge.enable();
+    fridge.addFood("кус-кус");
+    fridge.disable(); // ошибка, в холодильнике есть еда
+
+
+</script>
+
+</body>
+</html>

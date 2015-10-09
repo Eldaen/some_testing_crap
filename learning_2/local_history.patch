@@ -1,0 +1,29 @@
+Index: index.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- index.html	(revision )
++++ index.html	(revision )
+@@ -9,7 +9,19 @@
+ <script>
+     'use strict';
+ 
++    var animal = {
++        eats: true
++    };
+-    
++
++    var rabbit = {
++        jumps: true,
++        __proto__: animal
++    };
++
++    for (var key in rabbit) {
++        if (!rabbit.hasOwnProperty(key)) continue; // пропустить "не свои" свойства
++        alert( key + " = " + rabbit[key] ); // выводит только "jumps"
++    }
+ 
+ 
+ 
+\ No newline at end of file
