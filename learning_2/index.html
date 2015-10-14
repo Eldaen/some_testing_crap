@@ -1,61 +1,156 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="utf-8">
+    <style>
+        td select,
+        td input {
+            width: 150px;
+        }
+
+        #diagram td {
+            vertical-align: bottom;
+            text-align: center;
+            padding: 10px;
+        }
+
+        #diagram div {
+            margin: auto;
+        }
+    </style>
 </head>
 
 <body>
 
+
+Калькулятор процентов, из расчёта 12% годовых.
+<form name="calculator">
+    <table>
+        <tr>
+            <td>Сумма</td>
+            <td>
+                <input name="money" type="text" value="10000">
+            </td>
+        </tr>
+        <tr>
+            <td>Срок в месяцах</td>
+            <td>
+                <select name="months">
+                    <option value="3">3 (минимум)</option>
+                    <option value="6">6 (полгода)</option>
+                    <option value="12" selected>12 (год)</option>
+                    <option value="18">18 (1.5 года)</option>
+                    <option value="24">24 (2 года)</option>
+                    <option value="30">30 (2.5 года)</option>
+                    <option value="36">36 (3 года)</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>С капитализацией</td>
+            <td>
+                <input name="capitalization" type="checkbox">
+            </td>
+        </tr>
+    </table>
+
+
+</form>
+
+
+<table id="diagram">
+    <tr>
+        <th>Было:</th>
+        <th>Станет:</th>
+    </tr>
+    <tr>
+        <th id="money-before"></th>
+        <th id="money-after"></th>
+    </tr>
+    <td>
+        <div style="background: red;width:40px;height:100px" id="height-before"></div>
+    </td>
+    <td>
+        <div style="background: green;width:40px;height:0" id="height-after"></div>
+    </td>
+</table>
+
 <script>
-    function preloadImages(sources, callback) {
-        var loadCounter = 0;
+    var form = document.forms.calculator; // можно document.forms[0]
+    var input = form.elements.money;
+    var months = form.elements.months;
+    var capitalization = form.elements.capitalization;
+    math();
 
-        for (var i = 0; i < sources.length; i++) {
-            (function (i) {
-                var img = document.createElement('img');
-                img.src = sources[i];
-                img.onload = function (){loadCounter++; alert (1)};
-                img.onerror = function (){loadCounter++; alert (2)};
-            }(i));
+    // вспомогательная функция для получения символа из события keypress
+    // (вдруг понадобится))
+    function getChar(event) {
+        if (event.which == null) {
+            if (event.keyCode < 32) return null;
+            return String.fromCharCode(event.keyCode); // IE
         }
-        if (loadCounter == 3) {
-            callback();
+
+        if (event.which != 0 && event.charCode != 0) {
+            if (event.which < 32) return null;
+            return String.fromCharCode(event.which); // остальные
         }
+
+        return null; // специальная клавиша
     }
 
-    // ---------- Проверка ----------
+    function math () {
+        var after;
 
-    /* файлы для загрузки */
-    var sources = [
-        "https://js.cx/images-load/1.jpg",
-        "https://js.cx/images-load/2.jpg",
-        "https://js.cx/images-load/3.jpg"
-    ];
-    for (var i = 0; i < sources.length; i++) {
-        sources[i] += '?' + Math.random(); // добавляем параметр, чтобы без кеша (для теста)
-    }
-
-    /** если картинка загружена, то можно будет сразу получить её ширину
-     * создадим все картинки и проверим, есть ли у них ширина
-     */
-    function testLoaded() {
-        var widthSum = 0;
-        for (var i = 0; i < sources.length; i++) {
-            var img = document.createElement('img');
-            img.src = sources[i];
-            widthSum += img.width;
+        for (var i = 0; i < months.options.length; i++) {
+            var option = months.options[i];
+            if (option.selected) {
+                var value = option.value;
+                break;
+            }
         }
-        // каждое изображение 100x100, общая ширина должна быть 300px
-        alert(widthSum);
+
+        var before = input.value;
+        if (capitalization.checked){
+            after = Math.pow((1 + 1 / 100), value) * input.value;}
+        else {
+            after = +input.value + (+input.value * value/100);
+        }
+        graph(before,after.toFixed());
     }
 
-    // до загрузки - выведет 0
-    testLoaded();
 
-    // после загрузки - выведет 300
-    preloadImages(sources, testLoaded);
+    months.onchange = input.onblur = capitalization.onchange = function (){
+        math();
+    };
+
+    input.onkeypress = function (e) {
+        var input = getChar(e);
+
+        if (input == null) return;
+        if (input < '0' || input > '9') {
+            return false;
+        }
+    };
+
+
+
+    function graph (before,after){
+        var moneyBefore = document.body.querySelector('#money-before');
+        var moneyAfter = document.body.querySelector('#money-after');
+        moneyBefore.innerText = before;
+        moneyAfter.innerText = after;
+
+        var firstHeight = (before/after)*100;
+
+        var heightBefore = document.getElementById('height-before');
+        heightBefore.style.height = firstHeight + 'px';
+
+        var heightAfter = document.getElementById('height-after');
+        heightAfter.style.height = "100px";
+    }
 </script>
+
 
 </body>
 

@@ -1,0 +1,11 @@
+textarea {
+
+}
+.edit-td {
+    outline: none;
+    padding: 0;
+    border: none;
+    margin: 0;
+    resize: none;
+    position: relative;
+}
